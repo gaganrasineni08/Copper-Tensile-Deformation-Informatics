@@ -17,3 +17,19 @@ This repository contains a fully automated computational framework designed to s
 ## Key Insights & Scientific Conclusions
 * **Thermal Softening Verifications:** The quantitative data proves a stark reduction in maximum yield strength as the environment shifts from 300K to 900K.
 * **Mechanism Identification:** Visually verified that elevated thermal energy acts as a direct kinetic catalyst, drastically lowering the energy barrier required for dislocation nucleation and forcing the crystal lattice to fail at significantly lower structural loads.
+
+## Visual & Quantitative Analytics
+
+### Microscopic Defect Evolution (OVITO Parametric Thermal Sweep)
+
+#### 300K — Ambient Temperature (High Lattice Stability)
+![OVITO 300K Analysis](ovito_snapshot(300k).jpg)
+
+#### 600K — Intermediate Temperature (Early Defect Nucleation)
+![OVITO 600K Analysis](ovito_snapshot(600k).jpg)
+
+#### 900K — Extreme Temperature (Rapid Structural Breakdown)
+![OVITO 900K Analysis](ovito_snapshot(900k).jpg)
+
+### Macroscopic Stress-Strain Relationship (Excel Master Graph)
+![Excel Stress Strain Graph](master_graph.png)
