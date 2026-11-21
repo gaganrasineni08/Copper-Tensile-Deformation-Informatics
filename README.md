@@ -14,6 +14,9 @@ This repository contains a fully automated computational framework designed to s
 3. **Atomic Defect Tracking:** Implemented a Dislocation Extraction Algorithm (DXA) in OVITO to strip away structurally perfect FCC atoms, successfully isolating Shockley partial dislocations and tracking stacking fault trends.
 4. **Macroscopic Engineering Graphs:** Extracted automated text dumps to plot smooth True Stress vs. Engineering Strain curves, highlighting the onset of structural yield limits.
 
+### Note on the strain column in `stress_strain_*K.txt`
+The committed data files were written by an earlier version of `in.cu_tensile.txt` that defined `L0` as an equal-style variable, which LAMMPS re-evaluates on every use, so the first (strain) column is always ~0. The script now freezes `L0` at the start of deformation. For the existing files the strain can be recovered from the row number: rows are printed every 100 steps of 1 fs at `erate 0.01` ps^-1, so the engineering strain of data row *n* (counting from 0) is `0.001 * n`, reaching 0.25 at the last row. Re-running the script produces the correct strain column directly.
+
 ## Key Insights & Scientific Conclusions
 * **Thermal Softening Verifications:** The quantitative data proves a stark reduction in maximum yield strength as the environment shifts from 300K to 900K.
 * **Mechanism Identification:** Visually verified that elevated thermal energy acts as a direct kinetic catalyst, drastically lowering the energy barrier required for dislocation nucleation and forcing the crystal lattice to fail at significantly lower structural loads.

@@ -29,8 +29,13 @@ run             5000
 unfix           1
 
 # 5. SETUP DEFORMATION VARIABLES
-# Store initial length in Z direction
-variable        L0 equal lz
+# Store initial length in Z direction. An equal-style variable is
+# re-evaluated every time it is used, so "variable L0 equal lz" would track
+# the current length and the strain below would always be 0. Copy the value
+# once with ${...} so L0 stays fixed at the start-of-deformation length.
+variable        tmp equal lz
+variable        L0 equal ${tmp}
+print           "Initial length L0 = ${L0} Angstrom"
 # Calculate Engineering Strain: (L - L0) / L0
 variable        strain equal "(lz - v_L0)/v_L0"
 # Calculate Stress in Z direction (Convert from bar to GPa)
