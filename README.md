@@ -34,6 +34,8 @@ Then `python plot_stress_strain.py` (needs numpy and matplotlib) plots every `st
 | 600 K | 7.45 | 0.115 |
 | 900 K | 5.07 | 0.092 |
 
+`python -m pytest test_plot_stress_strain.py` checks the strain rebuild, the yield-peak pick and the values in this table.
+
 ## Key Insights & Scientific Conclusions
 * **Thermal Softening Verifications:** The quantitative data proves a stark reduction in maximum yield strength as the environment shifts from 300K to 900K.
 * **Mechanism Identification:** Visually verified that elevated thermal energy acts as a direct kinetic catalyst, drastically lowering the energy barrier required for dislocation nucleation and forcing the crystal lattice to fail at significantly lower structural loads.
