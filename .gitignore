@@ -1,0 +1,5 @@
+__pycache__/
+.pytest_cache/
+stress_strain.png
+*.lammpstrj
+log.lammps
