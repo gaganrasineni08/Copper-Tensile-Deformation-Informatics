@@ -34,7 +34,7 @@ Then `python plot_stress_strain.py` (needs numpy and matplotlib) plots every `st
 | 600 K | 7.45 | 0.115 |
 | 900 K | 5.07 | 0.092 |
 
-`python -m pytest test_plot_stress_strain.py` checks the strain rebuild, the yield-peak pick and the values in this table.
+`python -m pytest test_plot_stress_strain.py` checks the strain rebuild, the yield-peak pick and the values in this table. GitHub Actions (`.github/workflows/tests.yml`) runs these tests and the plot script on every push.
 
 ## Key Insights & Scientific Conclusions
 * **Thermal Softening Verifications:** The quantitative data proves a stark reduction in maximum yield strength as the environment shifts from 300K to 900K.
