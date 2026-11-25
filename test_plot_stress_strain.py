@@ -52,6 +52,12 @@ def test_temperature_from_name():
     assert temperature("curves.txt") is None
 
 
+def test_temperature_ignores_the_folder():
+    path = os.path.join("runs", "300K_old", "stress_strain_600K.txt")
+    assert temperature(path) == 600
+    assert temperature(os.path.join("900K", "curves.txt")) is None
+
+
 def test_committed_data_yield_peaks():
     here = os.path.dirname(os.path.abspath(__file__))
     expected = {300: 9.46, 600: 7.45, 900: 5.07}  # table in the README

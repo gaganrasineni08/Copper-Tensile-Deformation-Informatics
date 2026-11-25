@@ -11,6 +11,7 @@ i.e. 0.001 strain per row.
 """
 import argparse
 import glob
+import os
 import re
 
 import numpy as np
@@ -39,8 +40,11 @@ def first_yield(stress, drop_gpa=1.0):
 
 
 def temperature(path):
-    m = re.search(r"(\d+)K", path)
-    return int(m.group(1)) if m else None
+    """Temperature in K from the file name, e.g. stress_strain_600K.txt -> 600.
+    Only the base name is looked at, so a folder such as runs/300K_old/ does
+    not hide the real temperature, and the last NNNK in the name wins."""
+    found = re.findall(r"(\d+)K", os.path.basename(path))
+    return int(found[-1]) if found else None
 
 
 def main():
