@@ -1,10 +1,14 @@
 """Checks for plot_stress_strain.py. Run with `python -m pytest` or `python test_plot_stress_strain.py`."""
+import contextlib
+import io
 import os
+import sys
 import tempfile
 
 import numpy as np
+import pytest
 
-from plot_stress_strain import STRAIN_PER_ROW, first_yield, load, temperature
+from plot_stress_strain import STRAIN_PER_ROW, first_yield, load, main, temperature
 
 
 def _write(rows):
@@ -35,6 +39,48 @@ def test_load_keeps_real_strain():
         os.remove(path)
     assert not rebuilt
     assert np.allclose(strain, [0, 0.002, 0.004])
+
+
+def test_load_rejects_header_only_file():
+    # A run stopped before the first fix print leaves just the header line.
+    path = _write([])
+    try:
+        with pytest.raises(ValueError, match="no strain/stress rows"):
+            load(path)
+    finally:
+        os.remove(path)
+
+
+def test_load_rejects_single_column():
+    fd, path = tempfile.mkstemp(suffix="_300K.txt")
+    with os.fdopen(fd, "w") as f:
+        f.write("0.1\n0.2\n")
+    try:
+        with pytest.raises(ValueError):
+            load(path)
+    finally:
+        os.remove(path)
+
+
+def test_main_skips_empty_file():
+    # An empty file next to good ones is reported and skipped, not a crash.
+    here = os.path.dirname(os.path.abspath(__file__))
+    good = os.path.join(here, "stress_strain_300K.txt")
+    with tempfile.TemporaryDirectory() as tmp:
+        empty = os.path.join(tmp, "stress_strain_600K.txt")
+        with open(empty, "w") as f:
+            f.write("# Fix print output for fix def_print\n")
+        out = os.path.join(tmp, "curves.png")
+        err = io.StringIO()
+        argv = sys.argv
+        sys.argv = ["plot", "-o", out, good, empty]
+        try:
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                main()
+        finally:
+            sys.argv = argv
+        assert "skipped" in err.getvalue() and "600K" in err.getvalue()
+        assert os.path.exists(out)
 
 
 def test_first_yield_ignores_later_reloading_peak():

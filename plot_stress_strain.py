@@ -13,6 +13,8 @@ import argparse
 import glob
 import os
 import re
+import sys
+import warnings
 
 import numpy as np
 
@@ -20,8 +22,15 @@ STRAIN_PER_ROW = 0.001  # 100 steps * 0.001 ps * 0.01 ps^-1
 
 
 def load(path):
-    """Return (strain, stress_GPa, rebuilt) for one fix-print file."""
-    data = np.loadtxt(path, comments="#", ndmin=2)
+    """Return (strain, stress_GPa, rebuilt) for one fix-print file.
+
+    Raises ValueError for a file with no data rows or fewer than two columns,
+    e.g. the header-only file left behind when a LAMMPS run is stopped early."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)  # numpy's "Empty input file"
+        data = np.loadtxt(path, comments="#", ndmin=2)
+    if data.shape[0] == 0 or data.shape[1] < 2:
+        raise ValueError(f"{path}: no strain/stress rows found")
     strain, stress = data[:, 0], data[:, 1]
     rebuilt = bool(np.all(np.abs(strain) < 1e-9)) and len(strain) > 1
     if rebuilt:
@@ -65,14 +74,23 @@ def main():
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
     print(f"{'file':<26}{'yield peak (GPa)':>18}{'at strain':>11}")
+    plotted = 0
     for f in files:
-        strain, stress, rebuilt = load(f)
+        try:
+            strain, stress, rebuilt = load(f)
+        except ValueError as e:
+            print(f"skipped {e}", file=sys.stderr)
+            continue
+        plotted += 1
         i = first_yield(stress)
         note = "  (strain rebuilt from row number)" if rebuilt else ""
         print(f"{f:<26}{stress[i]:>18.3f}{strain[i]:>11.3f}{note}")
         t = temperature(f)
         (line,) = ax.plot(strain, stress, lw=1.2, label=f"{t} K" if t else f)
         ax.plot(strain[i], stress[i], "o", ms=4, color=line.get_color())
+
+    if not plotted:
+        ap.error("none of the files had any data rows")
 
     ax.set_xlabel("Engineering strain")
     ax.set_ylabel("Stress (GPa)")
