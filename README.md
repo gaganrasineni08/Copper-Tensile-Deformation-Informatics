@@ -26,15 +26,15 @@ lmp -var T 600 -in in.cu_tensile.txt
 lmp -var T 900 -in in.cu_tensile.txt
 ```
 
-Then `python plot_stress_strain.py` (needs numpy and matplotlib) plots every `stress_strain_*K.txt` in the folder to `stress_strain.png` and prints the first yield peak of each curve. It rebuilds the strain from the row number for the older files described above. On the committed data it gives:
+Then `python plot_stress_strain.py` (needs numpy and matplotlib) plots every `stress_strain_*K.txt` in the folder to `stress_strain.png` and prints, for each curve, the elastic (Young's) modulus from a straight-line fit over the first 2% strain and the first yield peak. It rebuilds the strain from the row number for the older files described above. On the committed data it gives:
 
-| Temperature | Yield peak (GPa) | Strain at peak |
-|---|---|---|
-| 300 K | 9.46 | 0.121 |
-| 600 K | 7.45 | 0.115 |
-| 900 K | 5.07 | 0.092 |
+| Temperature | Elastic modulus (GPa) | Yield peak (GPa) | Strain at peak |
+|---|---|---|---|
+| 300 K | 70.2 | 9.46 | 0.121 |
+| 600 K | 57.2 | 7.45 | 0.115 |
+| 900 K | 50.1 | 5.07 | 0.092 |
 
-`python -m pytest test_plot_stress_strain.py` checks the strain rebuild, the yield-peak pick and the values in this table. GitHub Actions (`.github/workflows/tests.yml`) runs these tests and the plot script on every push.
+`python -m pytest test_plot_stress_strain.py` checks the strain rebuild, the modulus fit, the yield-peak pick and the values in this table. GitHub Actions (`.github/workflows/tests.yml`) runs these tests and the plot script on every push.
 
 ## Key Insights & Scientific Conclusions
 * **Thermal Softening Verifications:** The quantitative data proves a stark reduction in maximum yield strength as the environment shifts from 300K to 900K.

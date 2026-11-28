@@ -1,4 +1,4 @@
-"""Plot the stress-strain curves and report the first yield peak at each temperature.
+"""Plot the stress-strain curves and report the elastic modulus and first yield peak at each temperature.
 
 Usage:
     python plot_stress_strain.py                 # all stress_strain_*K.txt here
@@ -48,6 +48,16 @@ def first_yield(stress, drop_gpa=1.0):
     return int(np.argmax(stress[:end]))
 
 
+def elastic_modulus(strain, stress, max_strain=0.02):
+    """Young's modulus in GPa: slope of a straight-line fit to the points with
+    strain <= max_strain (the linear elastic part, well before the yield peak).
+    Returns None when fewer than three points fall in that range."""
+    mask = (strain >= 0) & (strain <= max_strain)
+    if np.count_nonzero(mask) < 3:
+        return None
+    return float(np.polyfit(strain[mask], stress[mask], 1)[0])
+
+
 def temperature(path):
     """Temperature in K from the file name, e.g. stress_strain_600K.txt -> 600.
     Only the base name is looked at, so a folder such as runs/300K_old/ does
@@ -73,7 +83,7 @@ def main():
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    print(f"{'file':<26}{'yield peak (GPa)':>18}{'at strain':>11}")
+    print(f"{'file':<26}{'E (GPa)':>9}{'yield peak (GPa)':>18}{'at strain':>11}")
     plotted = 0
     for f in files:
         try:
@@ -83,8 +93,10 @@ def main():
             continue
         plotted += 1
         i = first_yield(stress)
+        e = elastic_modulus(strain, stress)
+        e_txt = f"{e:>9.1f}" if e is not None else f"{'-':>9}"
         note = "  (strain rebuilt from row number)" if rebuilt else ""
-        print(f"{f:<26}{stress[i]:>18.3f}{strain[i]:>11.3f}{note}")
+        print(f"{f:<26}{e_txt}{stress[i]:>18.3f}{strain[i]:>11.3f}{note}")
         t = temperature(f)
         (line,) = ax.plot(strain, stress, lw=1.2, label=f"{t} K" if t else f)
         ax.plot(strain[i], stress[i], "o", ms=4, color=line.get_color())

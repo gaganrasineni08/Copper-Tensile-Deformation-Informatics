@@ -8,7 +8,14 @@ import tempfile
 import numpy as np
 import pytest
 
-from plot_stress_strain import STRAIN_PER_ROW, first_yield, load, main, temperature
+from plot_stress_strain import (
+    STRAIN_PER_ROW,
+    elastic_modulus,
+    first_yield,
+    load,
+    main,
+    temperature,
+)
 
 
 def _write(rows):
@@ -91,6 +98,25 @@ def test_first_yield_ignores_later_reloading_peak():
 
 def test_first_yield_without_a_drop_is_the_maximum():
     assert first_yield(np.array([0.0, 1.0, 2.0, 1.5])) == 2
+
+
+def test_elastic_modulus_of_a_straight_line():
+    strain = np.linspace(0, 0.05, 51)
+    stress = 70.0 * strain
+    stress[strain > 0.02] = 0.0  # past the fit window, must not count
+    assert elastic_modulus(strain, stress) == pytest.approx(70.0)
+
+
+def test_elastic_modulus_needs_three_points():
+    assert elastic_modulus(np.array([0.0, 0.01]), np.array([0.0, 0.7])) is None
+
+
+def test_committed_data_elastic_modulus():
+    here = os.path.dirname(os.path.abspath(__file__))
+    expected = {300: 70.2, 600: 57.2, 900: 50.1}  # table in the README
+    for t, gpa in expected.items():
+        strain, stress, _ = load(os.path.join(here, f"stress_strain_{t}K.txt"))
+        assert abs(elastic_modulus(strain, stress) - gpa) < 0.1, t
 
 
 def test_temperature_from_name():
